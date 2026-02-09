@@ -10,6 +10,7 @@ struct CalendarEvent: Identifiable, Equatable {
     let location: String?
     let notes: String?
     let url: URL?
+    let calendarID: String
     let calendarName: String
     let calendarColor: CGColor?
     let alarmOffsets: [TimeInterval] // seconds before start (negative values)
@@ -50,6 +51,7 @@ struct CalendarEvent: Identifiable, Equatable {
             location: ekEvent.location,
             notes: ekEvent.notes,
             url: ekEvent.url,
+            calendarID: ekEvent.calendar?.calendarIdentifier ?? "",
             calendarName: ekEvent.calendar?.title ?? "Unknown",
             calendarColor: ekEvent.calendar?.cgColor,
             alarmOffsets: offsets
@@ -66,6 +68,7 @@ struct CalendarEvent: Identifiable, Equatable {
             location: "https://teams.microsoft.com/l/meetup-join/test123",
             notes: "This is a test alert from Loud Alerts.\nZoom: https://zoom.us/j/1234567890",
             url: nil,
+            calendarID: "test",
             calendarName: "Test Calendar",
             calendarColor: CGColor(red: 0.2, green: 0.5, blue: 1.0, alpha: 1.0),
             alarmOffsets: [-300]

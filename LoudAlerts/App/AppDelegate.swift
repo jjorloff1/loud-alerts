@@ -18,6 +18,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.alertScheduler.updateEvents(events)
         }
 
+        // Wire up disabled calendar filtering
+        calendarService.disabledCalendarIDs = { [weak self] in
+            self?.settingsManager.disabledCalendarIDs ?? []
+        }
+
+        // Re-fetch events when calendar selection changes in settings
+        settingsManager.onCalendarsChanged = { [weak self] in
+            self?.calendarService.fetchEvents()
+        }
+
         calendarService.requestAccessAndStart()
     }
 

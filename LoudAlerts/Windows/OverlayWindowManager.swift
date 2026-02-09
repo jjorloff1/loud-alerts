@@ -36,10 +36,7 @@ class OverlayWindowManager: ObservableObject {
             )
 
             let hostingView = NSHostingView(rootView: view)
-            hostingView.frame = screen.frame
             window.contentView = hostingView
-
-            // Set window frame to cover the entire screen
             window.setFrame(screen.frame, display: true)
 
             window.orderFrontRegardless()

@@ -25,9 +25,12 @@ class SettingsManager: ObservableObject {
         }
     }
 
+    var onCalendarsChanged: (() -> Void)?
+
     @Published var disabledCalendarIDs: Set<String> {
         didSet {
             UserDefaults.standard.set(Array(disabledCalendarIDs), forKey: "disabledCalendarIDs")
+            onCalendarsChanged?()
         }
     }
 

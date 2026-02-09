@@ -12,6 +12,7 @@ class CalendarService: ObservableObject {
     @Published var calendars: [EKCalendar] = []
 
     var onEventsUpdated: (([CalendarEvent]) -> Void)?
+    var disabledCalendarIDs: () -> Set<String> = { [] }
 
     private let pollInterval: TimeInterval = 300 // 5 minutes
 
@@ -45,8 +46,11 @@ class CalendarService: ObservableObject {
             calendars: nil // all calendars
         )
 
+        let disabled = disabledCalendarIDs()
         let ekEvents = store.events(matching: predicate)
-        let calendarEvents = ekEvents.map { CalendarEvent.from(ekEvent: $0) }
+        let calendarEvents = ekEvents
+            .map { CalendarEvent.from(ekEvent: $0) }
+            .filter { !disabled.contains($0.calendarID) }
             .sorted { $0.startDate < $1.startDate }
 
         DispatchQueue.main.async { [weak self] in
