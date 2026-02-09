@@ -20,6 +20,9 @@ class OverlayWindowManager: ObservableObject {
 
         isShowingAlert = true
 
+        // Activate the app so an LSUIElement app can show windows in front
+        NSApp.activate(ignoringOtherApps: true)
+
         for (index, screen) in screens.enumerated() {
             let isPrimary = index == 0
             let window = OverlayWindow(screen: screen)

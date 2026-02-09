@@ -5,6 +5,7 @@ struct MenuBarView: View {
     @EnvironmentObject var alertScheduler: AlertScheduler
     @EnvironmentObject var overlayManager: OverlayWindowManager
     @EnvironmentObject var settingsManager: SettingsManager
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -63,12 +64,16 @@ struct MenuBarView: View {
                 Divider()
                     .padding(.vertical, 4)
 
-                SettingsLink {
+                Button {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openSettings()
+                } label: {
                     HStack {
                         Image(systemName: "gear")
                         Text("Settings...")
                         Spacer()
                     }
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 12)
@@ -141,9 +146,26 @@ struct MenuBarView: View {
     // MARK: - Actions
 
     private func testAlert() {
-        if let appDelegate = NSApplication.shared.delegate as? AppDelegate {
-            appDelegate.testAlert()
+        let testEvent = CalendarEvent.testEvent()
+
+        if settingsManager.playSoundOnAlert {
+            SoundPlayer.playAlertSound()
         }
+
+        overlayManager.showAlert(
+            for: testEvent,
+            onDismiss: {
+                overlayManager.dismissAll()
+            },
+            onSnooze: { minutes in
+                overlayManager.dismissAll()
+                alertScheduler.snooze(event: testEvent, minutes: minutes)
+            },
+            onJoinCall: { link in
+                NSWorkspace.shared.open(link.url)
+                overlayManager.dismissAll()
+            }
+        )
     }
 
     private func refreshEvents() {
