@@ -6,8 +6,8 @@ class AlertScheduler: ObservableObject {
 
     var onAlertFired: ((CalendarEvent) -> Void)?
 
-    /// Default reminder offset if event has no alarms (in seconds before start, negative)
-    @Published var defaultReminderOffset: TimeInterval = -300 // 5 minutes
+    /// Returns default reminder minutes from settings (-1 = None)
+    var defaultReminderMinutes: () -> Int = { -1 }
 
     func updateEvents(_ events: [CalendarEvent]) {
         // Cancel timers for events that no longer exist
@@ -41,11 +41,16 @@ class AlertScheduler: ObservableObject {
         // Skip past events (started more than 2 minutes ago)
         if event.startDate.timeIntervalSinceNow < -120 { return }
 
-        // Skip events with no alarms — the user set alert to "None"
-        if !event.hasAlarms { return }
-
-        // Use the event's alarm offsets
-        let offsets = event.alarmOffsets
+        // Determine alarm offsets
+        let offsets: [TimeInterval]
+        if event.hasAlarms {
+            offsets = event.alarmOffsets
+        } else {
+            // Event has no alarms — check default reminder setting
+            let defaultMinutes = defaultReminderMinutes()
+            if defaultMinutes < 0 { return } // "None" — don't alert
+            offsets = [TimeInterval(-defaultMinutes * 60)]
+        }
         let fireDates = offsets.map { event.startDate.addingTimeInterval($0) }
 
         // Find the next fire date that's in the future (or within the last 30 seconds)

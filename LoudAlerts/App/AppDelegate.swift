@@ -23,6 +23,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.settingsManager.disabledCalendarIDs ?? []
         }
 
+        // Wire up default reminder setting
+        alertScheduler.defaultReminderMinutes = { [weak self] in
+            self?.settingsManager.defaultReminderMinutes ?? -1
+        }
+
         // Re-fetch events when calendar selection changes in settings
         settingsManager.onCalendarsChanged = { [weak self] in
             self?.calendarService.fetchEvents()

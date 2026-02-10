@@ -25,6 +25,7 @@ struct SettingsView: View {
                 Toggle("Enable alerts", isOn: $settingsManager.alertsEnabled)
 
                 Picker("Default reminder", selection: $settingsManager.defaultReminderMinutes) {
+                    Text("None").tag(-1)
                     Text("At start time").tag(0)
                     Text("1 minute before").tag(1)
                     Text("2 minutes before").tag(2)
@@ -33,6 +34,7 @@ struct SettingsView: View {
                     Text("15 minutes before").tag(15)
                 }
                 .pickerStyle(.menu)
+                .help("Override for events with no alert set. \"None\" means only events with their own alerts will trigger.")
 
                 Toggle("Skip all-day events", isOn: $settingsManager.skipAllDayEvents)
                 Toggle("Play sound with alert", isOn: $settingsManager.playSoundOnAlert)

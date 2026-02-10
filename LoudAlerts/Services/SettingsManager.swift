@@ -40,7 +40,7 @@ class SettingsManager: ObservableObject {
         // Register defaults
         defaults.register(defaults: [
             "alertsEnabled": true,
-            "defaultReminderMinutes": 5,
+            "defaultReminderMinutes": -1,
             "skipAllDayEvents": true,
             "playSoundOnAlert": true,
             "launchAtLogin": false,
