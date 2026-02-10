@@ -191,9 +191,21 @@ struct AlertOverlayView: View {
                 // Snooze button
                 if showSnoozeOptions {
                     HStack(spacing: 8) {
-                        ForEach([1, 5, 10], id: \.self) { minutes in
+                        ForEach([1, 5], id: \.self) { minutes in
                             Button(action: { onSnooze(minutes) }) {
                                 Text("\(minutes)m")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .frame(width: 60, height: 44)
+                                    .background(Color.white.opacity(0.15))
+                                    .cornerRadius(10)
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        if minutesUntilStart > 1 {
+                            Button(action: { onSnooze(minutesUntilStart) }) {
+                                Text("Start")
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(.white)
                                     .frame(width: 60, height: 44)
@@ -235,6 +247,10 @@ struct AlertOverlayView: View {
     }
 
     // MARK: - Helpers
+
+    private var minutesUntilStart: Int {
+        max(0, Int(ceil(event.startDate.timeIntervalSinceNow / 60)))
+    }
 
     private var calendarSwiftUIColor: Color {
         if let cgColor = event.calendarColor {

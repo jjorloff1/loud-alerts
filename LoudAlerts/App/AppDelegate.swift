@@ -46,23 +46,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
 
-            if settingsManager.playSoundOnAlert {
-                SoundPlayer.playAlertSound()
-            }
-
             self.overlayManager.showAlert(
                 for: event,
-                onDismiss: { [weak self] in
-                    self?.overlayManager.dismissAll()
-                },
-                onSnooze: { [weak self] minutes in
-                    self?.overlayManager.dismissAll()
-                    self?.alertScheduler.snooze(event: event, minutes: minutes)
-                },
-                onJoinCall: { [weak self] link in
-                    NSWorkspace.shared.open(link.url)
-                    self?.overlayManager.dismissAll()
-                }
+                playSound: settingsManager.playSoundOnAlert,
+                onDismiss: {},
+                onJoinCall: { _ in }
             )
         }
     }

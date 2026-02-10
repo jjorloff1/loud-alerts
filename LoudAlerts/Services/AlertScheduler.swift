@@ -23,20 +23,7 @@ class AlertScheduler: ObservableObject {
         }
     }
 
-    func snooze(event: CalendarEvent, minutes: Int) {
-        let snoozeId = "\(event.id)-snooze-\(UUID().uuidString)"
-        let fireDate = Date().addingTimeInterval(TimeInterval(minutes * 60))
-
-        // Create a modified event for the snooze
-        let snoozedEvent = event
-
-        let timer = Timer(fire: fireDate, interval: 0, repeats: false) { [weak self] _ in
-            self?.timers.removeValue(forKey: snoozeId)
-            self?.onAlertFired?(snoozedEvent)
-        }
-        RunLoop.main.add(timer, forMode: .common)
-        timers[snoozeId] = timer
-    }
+    // Snooze is now handled by OverlayWindowManager directly
 
     func cancelAll() {
         timers.values.forEach { $0.invalidate() }

@@ -146,25 +146,11 @@ struct MenuBarView: View {
     // MARK: - Actions
 
     private func testAlert() {
-        let testEvent = CalendarEvent.testEvent()
-
-        if settingsManager.playSoundOnAlert {
-            SoundPlayer.playAlertSound()
-        }
-
         overlayManager.showAlert(
-            for: testEvent,
-            onDismiss: {
-                overlayManager.dismissAll()
-            },
-            onSnooze: { minutes in
-                overlayManager.dismissAll()
-                alertScheduler.snooze(event: testEvent, minutes: minutes)
-            },
-            onJoinCall: { link in
-                NSWorkspace.shared.open(link.url)
-                overlayManager.dismissAll()
-            }
+            for: CalendarEvent.testEvent(),
+            playSound: settingsManager.playSoundOnAlert,
+            onDismiss: {},
+            onJoinCall: { _ in }
         )
     }
 

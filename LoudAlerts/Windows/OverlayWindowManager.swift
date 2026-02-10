@@ -4,19 +4,40 @@ import SwiftUI
 class OverlayWindowManager: ObservableObject {
     private var windows: [OverlayWindow] = []
     private var keyMonitor: Any?
+    private var snoozeWork: DispatchWorkItem?
     @Published var isShowingAlert = false
+
+    // Stored so snooze can re-show the same alert
+    private var currentEvent: CalendarEvent?
+    private var currentOnDismiss: (() -> Void)?
+    private var currentOnJoinCall: ((MeetingLink) -> Void)?
+    private var currentPlaySound: Bool = false
 
     func showAlert(
         for event: CalendarEvent,
+        playSound: Bool = false,
         onDismiss: @escaping () -> Void,
-        onSnooze: @escaping (Int) -> Void,
         onJoinCall: @escaping (MeetingLink) -> Void
     ) {
+        // Cancel any pending snooze
+        snoozeWork?.cancel()
+        snoozeWork = nil
+
         // Dismiss any existing alerts first
-        dismissAll()
+        dismissWindows()
 
         let screens = NSScreen.screens
         guard !screens.isEmpty else { return }
+
+        // Store for snooze re-show
+        currentEvent = event
+        currentOnDismiss = onDismiss
+        currentOnJoinCall = onJoinCall
+        currentPlaySound = playSound
+
+        if playSound {
+            SoundPlayer.playAlertSound()
+        }
 
         isShowingAlert = true
 
@@ -30,9 +51,18 @@ class OverlayWindowManager: ObservableObject {
             let view = AlertOverlayView(
                 event: event,
                 isPrimary: isPrimary,
-                onDismiss: onDismiss,
-                onSnooze: onSnooze,
-                onJoinCall: onJoinCall
+                onDismiss: { [weak self] in
+                    self?.dismissAll()
+                    onDismiss()
+                },
+                onSnooze: { [weak self] minutes in
+                    self?.snooze(minutes: minutes)
+                },
+                onJoinCall: { [weak self] link in
+                    NSWorkspace.shared.open(link.url)
+                    self?.dismissAll()
+                    onJoinCall(link)
+                }
             )
 
             let hostingView = NSHostingView(rootView: view)
@@ -52,10 +82,8 @@ class OverlayWindowManager: ObservableObject {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] keyEvent in
             guard self?.isShowingAlert == true else { return keyEvent }
             switch keyEvent.keyCode {
-            case 53: // Escape
-                onDismiss()
-                return nil
-            case 36: // Enter/Return
+            case 53, 36: // Escape or Enter/Return
+                self?.dismissAll()
                 onDismiss()
                 return nil
             default:
@@ -64,7 +92,39 @@ class OverlayWindowManager: ObservableObject {
         }
     }
 
+    func snooze(minutes: Int) {
+        dismissWindows()
+
+        let work = DispatchWorkItem { [weak self] in
+            guard let self,
+                  let event = self.currentEvent,
+                  let onDismiss = self.currentOnDismiss,
+                  let onJoinCall = self.currentOnJoinCall else { return }
+
+            self.showAlert(
+                for: event,
+                playSound: self.currentPlaySound,
+                onDismiss: onDismiss,
+                onJoinCall: onJoinCall
+            )
+        }
+        snoozeWork = work
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + Double(minutes * 60),
+            execute: work
+        )
+    }
+
     func dismissAll() {
+        snoozeWork?.cancel()
+        snoozeWork = nil
+        dismissWindows()
+        currentEvent = nil
+        currentOnDismiss = nil
+        currentOnJoinCall = nil
+    }
+
+    private func dismissWindows() {
         if let monitor = keyMonitor {
             NSEvent.removeMonitor(monitor)
             keyMonitor = nil
