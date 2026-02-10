@@ -41,8 +41,11 @@ class AlertScheduler: ObservableObject {
         // Skip past events (started more than 2 minutes ago)
         if event.startDate.timeIntervalSinceNow < -120 { return }
 
-        // Calculate fire date from alarm offsets, or use default
-        let offsets = event.alarmOffsets.isEmpty ? [defaultReminderOffset] : event.alarmOffsets
+        // Skip events with no alarms — the user set alert to "None"
+        if !event.hasAlarms { return }
+
+        // Use the event's alarm offsets
+        let offsets = event.alarmOffsets
         let fireDates = offsets.map { event.startDate.addingTimeInterval($0) }
 
         // Find the next fire date that's in the future (or within the last 30 seconds)

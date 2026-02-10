@@ -41,7 +41,7 @@ class CalendarService: ObservableObject {
         let endDate = Calendar.current.date(byAdding: .hour, value: 24, to: now)!
 
         let predicate = store.predicateForEvents(
-            withStart: now.addingTimeInterval(-3600), // include events that started up to 1hr ago
+            withStart: now,
             end: endDate,
             calendars: nil // all calendars
         )
@@ -51,6 +51,7 @@ class CalendarService: ObservableObject {
         let calendarEvents = ekEvents
             .map { CalendarEvent.from(ekEvent: $0) }
             .filter { !disabled.contains($0.calendarID) }
+            .filter { $0.endDate > now } // drop events that have ended
             .sorted { $0.startDate < $1.startDate }
 
         DispatchQueue.main.async { [weak self] in
