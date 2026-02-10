@@ -12,7 +12,7 @@ Small macOS notification banners get lost across multiple monitors. Loud Alerts 
 - **EventKit integration** — reads from the macOS system calendar database (supports any account added in System Settings > Internet Accounts: Outlook/Exchange, Google, iCloud, etc.)
 - **Meeting link detection** — auto-detects Teams, Zoom, Google Meet, Webex, and Slack links from event URL, location, and notes fields
 - **Join Call button** — opens the meeting link directly and dismisses the alert
-- **Snooze** — 1, 5, or 10 minute snooze options
+- **Snooze** — 1 minute, 5 minutes, or until event start time
 - **Keyboard shortcuts** — Escape or Enter to dismiss
 - **Menu bar app** — no Dock icon (`LSUIElement`), lives in the menu bar
 - **Upcoming events list** — see your next 24 hours of events from the menu bar
@@ -49,17 +49,37 @@ AlertOverlayView (SwiftUI) -- event details, countdown, join/snooze/dismiss butt
 1. **Xcode** (16.0+)
 2. **Calendar sync** — Add your Outlook/Exchange/Google account in **System Settings > Internet Accounts** with Calendars toggled ON
 
-## Build & Run
+## Build & Install
+
+### Quick install
+
+```bash
+# Build release
+xcodebuild -project LoudAlerts.xcodeproj -scheme LoudAlerts -configuration Release build
+
+# Copy to Applications
+cp -R ~/Library/Developer/Xcode/DerivedData/LoudAlerts-*/Build/Products/Release/LoudAlerts.app /Applications/
+```
+
+Since the app isn't signed with a Developer ID, macOS may block it on first launch. Right-click the app in Finder, choose **Open**, and confirm in the dialog.
+
+### Launch at login
+
+Open the app, click the menu bar bell icon, go to **Settings**, and toggle **Launch at login**. This uses `SMAppService` to register with macOS.
+
+Alternatively: **System Settings > General > Login Items** and add LoudAlerts.
+
+### Development
 
 ```bash
 # Open in Xcode
 open LoudAlerts.xcodeproj
 
-# Or build from command line
+# Or build debug from command line
 xcodebuild -project LoudAlerts.xcodeproj -scheme LoudAlerts -configuration Debug build
 ```
 
-Then press **Cmd+R** in Xcode, or run the built app from `DerivedData`.
+Press **Cmd+R** in Xcode to build and run.
 
 ## Testing
 
@@ -77,7 +97,7 @@ Then press **Cmd+R** in Xcode, or run the built app from `DerivedData`.
 On first launch, the app requests full calendar access via EventKit. Grant access in the system prompt. If you need to change this later: **System Settings > Privacy & Security > Calendars**.
 
 ### Alert Timing
-The app uses each event's alarm/reminder settings. If an event has no alarms, the configurable default reminder (5 minutes by default) is used.
+The app uses each event's alarm/reminder settings. If an event has no alarms (alert set to "None" in the calendar app), no alert is shown.
 
 ### Multi-Monitor Overlay
 One borderless `NSWindow` per screen at `NSWindow.Level.screenSaver + 1`. The primary screen gets the full interactive alert (event details, buttons). Secondary screens get a simplified overlay with just the event title and time.
