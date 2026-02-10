@@ -22,7 +22,30 @@
 		AA000014 /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000014; };
 		AA000015 /* OverlayWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000015; };
 		AA000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB000018; };
+		AA000019 /* MeetingLinkDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000021; };
+		AA000020 /* AlertSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000022; };
+		AA000021 /* CalendarEventTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000023; };
+		AA000022 /* SettingsManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000024; };
+		AA000023 /* EventFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000025; };
+		AA000024 /* MeetingLinkModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000026; };
+		AA000025 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000028; };
+		AA000030 /* MeetingLinkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000007; };
+		AA000031 /* MeetingLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000004; };
+		AA000032 /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000003; };
+		AA000033 /* AlertScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000008; };
+		AA000034 /* SettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000010; };
+		AA000035 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000028; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B4000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B2000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF000001;
+			remoteInfo = LoudAlerts;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		AB000001 /* LoudAlertsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoudAlertsApp.swift; sourceTree = "<group>"; };
@@ -42,11 +65,26 @@
 		AB000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB000019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB000020 /* LoudAlerts.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LoudAlerts.entitlements; sourceTree = "<group>"; };
+		AB000021 /* MeetingLinkDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingLinkDetectorTests.swift; sourceTree = "<group>"; };
+		AB000022 /* AlertSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertSchedulerTests.swift; sourceTree = "<group>"; };
+		AB000023 /* CalendarEventTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEventTests.swift; sourceTree = "<group>"; };
+		AB000024 /* SettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerTests.swift; sourceTree = "<group>"; };
+		AB000025 /* EventFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormattingTests.swift; sourceTree = "<group>"; };
+		AB000026 /* MeetingLinkModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingLinkModelTests.swift; sourceTree = "<group>"; };
+		AB000027 /* LoudAlertsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoudAlertsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB000028 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
 		AC000001 /* LoudAlerts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoudAlerts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		AD000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD000002 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -60,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				AE000002 /* LoudAlerts */,
+				AE00000B /* LoudAlertsTests */,
 				AE000009 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,6 +111,7 @@
 				AE000005 /* Services */,
 				AE000006 /* Views */,
 				AE000007 /* Windows */,
+				AE00000C /* Utilities */,
 				AE00000A /* Resources */,
 				AB000019 /* Info.plist */,
 				AB000020 /* LoudAlerts.entitlements */,
@@ -132,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				AC000001 /* LoudAlerts.app */,
+				AB000027 /* LoudAlertsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -142,6 +183,27 @@
 				AB000018 /* Assets.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		AE00000B /* LoudAlertsTests */ = {
+			isa = PBXGroup;
+			children = (
+				AB000021 /* MeetingLinkDetectorTests.swift */,
+				AB000022 /* AlertSchedulerTests.swift */,
+				AB000023 /* CalendarEventTests.swift */,
+				AB000024 /* SettingsManagerTests.swift */,
+				AB000025 /* EventFormattingTests.swift */,
+				AB000026 /* MeetingLinkModelTests.swift */,
+			);
+			path = LoudAlertsTests;
+			sourceTree = "<group>";
+		};
+		AE00000C /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				AB000028 /* EventFormatting.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -164,6 +226,23 @@
 			productReference = AC000001 /* LoudAlerts.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AF000002 /* LoudAlertsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B1000003 /* Build configuration list for PBXNativeTarget "LoudAlertsTests" */;
+			buildPhases = (
+				B0000003 /* Sources */,
+				AD000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B5000001 /* PBXTargetDependency */,
+			);
+			name = LoudAlertsTests;
+			productName = LoudAlertsTests;
+			productReference = AB000027 /* LoudAlertsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -175,6 +254,9 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					AF000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					AF000002 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -193,6 +275,7 @@
 			projectRoot = "";
 			targets = (
 				AF000001 /* LoudAlerts */,
+				AF000002 /* LoudAlertsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -227,10 +310,38 @@
 				AA000013 /* SettingsView.swift in Sources */,
 				AA000014 /* OverlayWindow.swift in Sources */,
 				AA000015 /* OverlayWindowManager.swift in Sources */,
+				AA000025 /* EventFormatting.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B0000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000030 /* MeetingLinkDetector.swift in Sources */,
+				AA000031 /* MeetingLink.swift in Sources */,
+				AA000032 /* CalendarEvent.swift in Sources */,
+				AA000033 /* AlertScheduler.swift in Sources */,
+				AA000034 /* SettingsManager.swift in Sources */,
+				AA000035 /* EventFormatting.swift in Sources */,
+				AA000019 /* MeetingLinkDetectorTests.swift in Sources */,
+				AA000020 /* AlertSchedulerTests.swift in Sources */,
+				AA000021 /* CalendarEventTests.swift in Sources */,
+				AA000022 /* SettingsManagerTests.swift in Sources */,
+				AA000023 /* EventFormattingTests.swift in Sources */,
+				AA000024 /* MeetingLinkModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B5000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF000001 /* LoudAlerts */;
+			targetProxy = B4000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B3000001 /* Debug */ = {
@@ -384,6 +495,36 @@
 			};
 			name = Release;
 		};
+		B3000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B3000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -401,6 +542,15 @@
 			buildConfigurations = (
 				B3000001 /* Debug */,
 				B3000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B1000003 /* Build configuration list for PBXNativeTarget "LoudAlertsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3000005 /* Debug */,
+				B3000006 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

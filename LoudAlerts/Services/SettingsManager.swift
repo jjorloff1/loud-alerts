@@ -2,28 +2,30 @@ import Foundation
 import ServiceManagement
 
 class SettingsManager: ObservableObject {
+    private let defaults: UserDefaults
+
     @Published var alertsEnabled: Bool {
-        didSet { UserDefaults.standard.set(alertsEnabled, forKey: "alertsEnabled") }
+        didSet { defaults.set(alertsEnabled, forKey: "alertsEnabled") }
     }
 
     @Published var defaultReminderMinutes: Int {
         didSet {
-            UserDefaults.standard.set(defaultReminderMinutes, forKey: "defaultReminderMinutes")
+            defaults.set(defaultReminderMinutes, forKey: "defaultReminderMinutes")
             onCalendarsChanged?()
         }
     }
 
     @Published var skipAllDayEvents: Bool {
-        didSet { UserDefaults.standard.set(skipAllDayEvents, forKey: "skipAllDayEvents") }
+        didSet { defaults.set(skipAllDayEvents, forKey: "skipAllDayEvents") }
     }
 
     @Published var playSoundOnAlert: Bool {
-        didSet { UserDefaults.standard.set(playSoundOnAlert, forKey: "playSoundOnAlert") }
+        didSet { defaults.set(playSoundOnAlert, forKey: "playSoundOnAlert") }
     }
 
     @Published var launchAtLogin: Bool {
         didSet {
-            UserDefaults.standard.set(launchAtLogin, forKey: "launchAtLogin")
+            defaults.set(launchAtLogin, forKey: "launchAtLogin")
             updateLaunchAtLogin()
         }
     }
@@ -32,13 +34,13 @@ class SettingsManager: ObservableObject {
 
     @Published var disabledCalendarIDs: Set<String> {
         didSet {
-            UserDefaults.standard.set(Array(disabledCalendarIDs), forKey: "disabledCalendarIDs")
+            defaults.set(Array(disabledCalendarIDs), forKey: "disabledCalendarIDs")
             onCalendarsChanged?()
         }
     }
 
-    init() {
-        let defaults = UserDefaults.standard
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
 
         // Register defaults
         defaults.register(defaults: [

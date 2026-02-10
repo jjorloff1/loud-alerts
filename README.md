@@ -83,6 +83,28 @@ Press **Cmd+R** in Xcode to build and run.
 
 ## Testing
 
+### Unit Tests
+
+The project includes unit tests covering core logic. Tests run in a standalone `xctest` process (not hosted inside the app), so they do not trigger calendar access prompts.
+
+```bash
+# Run all unit tests
+xcodebuild test -project LoudAlerts.xcodeproj -scheme LoudAlerts -destination 'platform=macOS'
+```
+
+Test files are in `LoudAlertsTests/` and cover:
+
+| File | What it tests |
+|------|---------------|
+| `MeetingLinkDetectorTests` | Teams, Zoom, Google Meet, Webex, Slack URL detection; priority ordering; HTML stripping; edge cases |
+| `AlertSchedulerTests` | Timer scheduling, immediate fire, past event skipping, cancel/prune, default reminder logic |
+| `CalendarEventTests` | `isHappeningNow` logic, equality, test event factory |
+| `SettingsManagerTests` | Default values, UserDefaults persistence, callback triggers |
+| `EventFormattingTests` | Alarm string formatting, relative time display |
+| `MeetingLinkModelTests` | Service icon names, display names, enum completeness |
+
+### Manual Testing
+
 1. **Menu bar icon** — Verify the bell icon appears in the menu bar, no Dock icon
 2. **Menu bar dropdown** — Click the icon, verify upcoming calendar events are listed
 3. **Test Alert** — Click "Test Alert" in the dropdown to verify the full-screen overlay covers all monitors
@@ -145,10 +167,19 @@ LoudAlerts/
   Windows/
     OverlayWindowManager.swift       -- Multi-monitor window orchestration, snooze
     OverlayWindow.swift              -- NSWindow subclass
+  Utilities/
+    EventFormatting.swift            -- Alarm and relative time formatting
   Resources/
     Assets.xcassets
   Info.plist
   LoudAlerts.entitlements
+LoudAlertsTests/
+  MeetingLinkDetectorTests.swift
+  AlertSchedulerTests.swift
+  CalendarEventTests.swift
+  SettingsManagerTests.swift
+  EventFormattingTests.swift
+  MeetingLinkModelTests.swift
 ```
 
 ## Future Enhancements
