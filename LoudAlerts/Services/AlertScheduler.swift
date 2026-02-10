@@ -2,7 +2,7 @@ import Foundation
 
 class AlertScheduler: ObservableObject {
     private var timers: [String: Timer] = [:] // eventID -> timer
-    private var alertedEvents: Set<String> = [] // events already alerted
+    private var alertedEvents: [String: Date] = [:] // eventID -> startDate, for pruning
 
     var onAlertFired: ((CalendarEvent) -> Void)?
 
@@ -16,6 +16,10 @@ class AlertScheduler: ObservableObject {
             timer.invalidate()
             timers.removeValue(forKey: id)
         }
+
+        // Prune alerted events whose start date is more than 2 hours ago
+        let pruneThreshold = Date().addingTimeInterval(-7200)
+        alertedEvents = alertedEvents.filter { $0.value > pruneThreshold }
 
         // Schedule new timers
         for event in events {
@@ -36,7 +40,7 @@ class AlertScheduler: ObservableObject {
         if timers[event.id] != nil { return }
 
         // Don't re-alert events we've already shown
-        if alertedEvents.contains(event.id) { return }
+        if alertedEvents[event.id] != nil { return }
 
         // Skip past events (started more than 2 minutes ago)
         if event.startDate.timeIntervalSinceNow < -120 { return }
@@ -79,7 +83,7 @@ class AlertScheduler: ObservableObject {
     }
 
     private func fireAlert(for event: CalendarEvent) {
-        alertedEvents.insert(event.id)
+        alertedEvents[event.id] = event.startDate
         timers.removeValue(forKey: event.id)
         onAlertFired?(event)
     }

@@ -160,6 +160,12 @@ struct MenuBarView: View {
 }
 
 struct EventRow: View {
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm a"
+        return f
+    }()
+
     let event: CalendarEvent
 
     var body: some View {
@@ -225,9 +231,7 @@ struct EventRow: View {
 
     private var timeString: String {
         if event.isAllDay { return "All day" }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        return formatter.string(from: event.startDate)
+        return Self.timeFormatter.string(from: event.startDate)
     }
 
     private var alarmString: String? {

@@ -8,13 +8,7 @@ enum MeetingService: String, CaseIterable {
     case slack = "Slack Huddle"
 
     var iconName: String {
-        switch self {
-        case .teams: return "video.fill"
-        case .zoom: return "video.fill"
-        case .googleMeet: return "video.fill"
-        case .webex: return "video.fill"
-        case .slack: return "headphones"
-        }
+        self == .slack ? "headphones" : "video.fill"
     }
 }
 

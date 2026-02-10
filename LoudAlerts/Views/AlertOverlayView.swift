@@ -1,6 +1,12 @@
 import SwiftUI
 
 struct AlertOverlayView: View {
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm a"
+        return f
+    }()
+
     let event: CalendarEvent
     let isPrimary: Bool
     let onDismiss: () -> Void
@@ -260,9 +266,7 @@ struct AlertOverlayView: View {
     }
 
     private var timeRangeString: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a"
-        return "\(formatter.string(from: event.startDate)) – \(formatter.string(from: event.endDate))"
+        "\(Self.timeFormatter.string(from: event.startDate)) – \(Self.timeFormatter.string(from: event.endDate))"
     }
 
     private var countdownString: String {

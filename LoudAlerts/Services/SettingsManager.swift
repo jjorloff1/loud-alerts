@@ -7,7 +7,10 @@ class SettingsManager: ObservableObject {
     }
 
     @Published var defaultReminderMinutes: Int {
-        didSet { UserDefaults.standard.set(defaultReminderMinutes, forKey: "defaultReminderMinutes") }
+        didSet {
+            UserDefaults.standard.set(defaultReminderMinutes, forKey: "defaultReminderMinutes")
+            onCalendarsChanged?()
+        }
     }
 
     @Published var skipAllDayEvents: Bool {

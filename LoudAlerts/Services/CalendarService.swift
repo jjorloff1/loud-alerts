@@ -1,6 +1,5 @@
 import EventKit
 import Foundation
-import Combine
 
 class CalendarService: ObservableObject {
     private let store = EKEventStore()

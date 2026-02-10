@@ -96,6 +96,18 @@ Press **Cmd+R** in Xcode to build and run.
 ### Calendar Access
 On first launch, the app requests full calendar access via EventKit. Grant access in the system prompt. If you need to change this later: **System Settings > Privacy & Security > Calendars**.
 
+### Connecting to Outlook / Exchange
+
+Loud Alerts reads from the macOS system calendar database via EventKit. It doesn't connect to Outlook or Exchange directly — instead, you add your account to macOS and it syncs automatically.
+
+1. Open **System Settings > Internet Accounts**
+2. Click **Add Account** and choose **Microsoft Exchange** (or **Google**, **iCloud**, etc.)
+3. Sign in with your work email and credentials
+4. On the "what to sync" screen, make sure **Calendars** is toggled **ON** (you can disable Mail, Contacts, etc. if you only want calendar sync)
+5. Open the macOS **Calendar** app and verify your events appear
+
+Once your calendars are syncing to macOS, Loud Alerts will see them automatically — no API keys or OAuth setup required. You can select which calendars to monitor in **Settings > Calendars**.
+
 ### Alert Timing
 The app uses each event's alarm/reminder settings. If an event has no alarms (alert set to "None" in the calendar app), no alert is shown.
 
@@ -120,11 +132,10 @@ LoudAlerts/
   Models/
     CalendarEvent.swift              -- Domain model wrapping EKEvent
     MeetingLink.swift                -- Parsed video conference link
-    AlertState.swift                 -- Alert lifecycle state machine
   Services/
     CalendarService.swift            -- EventKit integration, polling
     MeetingLinkDetector.swift        -- Video URL regex parser
-    AlertScheduler.swift             -- Timer management, snooze
+    AlertScheduler.swift             -- Timer management
     SoundPlayer.swift                -- Alert sound playback
     SettingsManager.swift            -- UserDefaults persistence
   Views/
@@ -132,11 +143,8 @@ LoudAlerts/
     MenuBarView.swift                -- Menu bar dropdown
     SettingsView.swift               -- Preferences window
   Windows/
-    OverlayWindowManager.swift       -- Multi-monitor window orchestration
+    OverlayWindowManager.swift       -- Multi-monitor window orchestration, snooze
     OverlayWindow.swift              -- NSWindow subclass
-  Utilities/
-    Constants.swift
-    DateFormatting.swift
   Resources/
     Assets.xcassets
   Info.plist
@@ -145,7 +153,6 @@ LoudAlerts/
 
 ## Future Enhancements
 
-- App icon design
 - Overlapping alert handling (queue/stack)
 - Screen configuration change handling
 - Microsoft Graph API as alternative data source

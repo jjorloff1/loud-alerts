@@ -11,7 +11,6 @@
 		AA000002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000002; };
 		AA000003 /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000003; };
 		AA000004 /* MeetingLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000004; };
-		AA000005 /* AlertState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000005; };
 		AA000006 /* CalendarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000006; };
 		AA000007 /* MeetingLinkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000007; };
 		AA000008 /* AlertScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000008; };
@@ -22,8 +21,6 @@
 		AA000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000013; };
 		AA000014 /* OverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000014; };
 		AA000015 /* OverlayWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000015; };
-		AA000016 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000016; };
-		AA000017 /* DateFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000017; };
 		AA000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AB000018; };
 /* End PBXBuildFile section */
 
@@ -32,7 +29,6 @@
 		AB000002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		AB000003 /* CalendarEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
 		AB000004 /* MeetingLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingLink.swift; sourceTree = "<group>"; };
-		AB000005 /* AlertState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertState.swift; sourceTree = "<group>"; };
 		AB000006 /* CalendarService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarService.swift; sourceTree = "<group>"; };
 		AB000007 /* MeetingLinkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingLinkDetector.swift; sourceTree = "<group>"; };
 		AB000008 /* AlertScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertScheduler.swift; sourceTree = "<group>"; };
@@ -43,8 +39,6 @@
 		AB000013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AB000014 /* OverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindow.swift; sourceTree = "<group>"; };
 		AB000015 /* OverlayWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindowManager.swift; sourceTree = "<group>"; };
-		AB000016 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
-		AB000017 /* DateFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatting.swift; sourceTree = "<group>"; };
 		AB000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AB000019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB000020 /* LoudAlerts.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LoudAlerts.entitlements; sourceTree = "<group>"; };
@@ -78,7 +72,6 @@
 				AE000005 /* Services */,
 				AE000006 /* Views */,
 				AE000007 /* Windows */,
-				AE000008 /* Utilities */,
 				AE00000A /* Resources */,
 				AB000019 /* Info.plist */,
 				AB000020 /* LoudAlerts.entitlements */,
@@ -100,7 +93,6 @@
 			children = (
 				AB000003 /* CalendarEvent.swift */,
 				AB000004 /* MeetingLink.swift */,
-				AB000005 /* AlertState.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -134,15 +126,6 @@
 				AB000015 /* OverlayWindowManager.swift */,
 			);
 			path = Windows;
-			sourceTree = "<group>";
-		};
-		AE000008 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				AB000016 /* Constants.swift */,
-				AB000017 /* DateFormatting.swift */,
-			);
-			path = Utilities;
 			sourceTree = "<group>";
 		};
 		AE000009 /* Products */ = {
@@ -234,7 +217,6 @@
 				AA000002 /* AppDelegate.swift in Sources */,
 				AA000003 /* CalendarEvent.swift in Sources */,
 				AA000004 /* MeetingLink.swift in Sources */,
-				AA000005 /* AlertState.swift in Sources */,
 				AA000006 /* CalendarService.swift in Sources */,
 				AA000007 /* MeetingLinkDetector.swift in Sources */,
 				AA000008 /* AlertScheduler.swift in Sources */,
@@ -245,8 +227,6 @@
 				AA000013 /* SettingsView.swift in Sources */,
 				AA000014 /* OverlayWindow.swift in Sources */,
 				AA000015 /* OverlayWindowManager.swift in Sources */,
-				AA000016 /* Constants.swift in Sources */,
-				AA000017 /* DateFormatting.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

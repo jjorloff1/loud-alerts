@@ -83,8 +83,9 @@ class OverlayWindowManager: ObservableObject {
             guard self?.isShowingAlert == true else { return keyEvent }
             switch keyEvent.keyCode {
             case 53, 36: // Escape or Enter/Return
+                let dismiss = self?.currentOnDismiss
                 self?.dismissAll()
-                onDismiss()
+                dismiss?()
                 return nil
             default:
                 return keyEvent

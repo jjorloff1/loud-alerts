@@ -60,8 +60,4 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    func testAlert() {
-        let testEvent = CalendarEvent.testEvent()
-        showAlert(for: testEvent)
-    }
 }
