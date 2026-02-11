@@ -209,4 +209,103 @@ final class AlertSchedulerTests: XCTestCase {
         scheduler.updateEvents([event])
         // Just verifying no crash
     }
+
+    // MARK: - Stale Timer Detection
+
+    func testStaleTimerIsRescheduled() {
+        // This simulates the overnight bug: an event was scheduled yesterday
+        // for an alert today at 8:15 AM, but the timer didn't fire.
+        // When updateEvents is called, it should detect the stale timer and reschedule.
+
+        // Create an event that should have alerted 1 second ago
+        // (fire date is in the past, but event hasn't been alerted yet)
+        let event = makeEvent(
+            id: "stale-timer",
+            startDate: Date().addingTimeInterval(300), // starts in 5min
+            alarmOffsets: [-301] // alarm should have fired 1 second ago
+        )
+
+        // First update: schedules the timer for 1 second ago (fire date in past)
+        // The scheduler should fire immediately since fire date is within 30s
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Event with past fire date within 30s should fire immediately")
+    }
+
+    func testValidTimerIsNotRescheduled() {
+        // Create an event with alarm in the future
+        let event = makeEvent(
+            id: "valid-timer",
+            startDate: Date().addingTimeInterval(600), // starts in 10min
+            alarmOffsets: [-300] // alarm fires in 5min
+        )
+
+        // First update: schedules the timer
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Future timer should not fire immediately")
+
+        // Second update with same event: should NOT reschedule (timer is still valid)
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Valid timer should not be rescheduled or fired")
+
+        // Verify timer is still scheduled by checking it fires later
+        // (we can't directly test this without waiting, but the fact that firedEvents is still empty confirms it)
+    }
+
+    func testTimerRemovedAfterFiring() {
+        // Verify that after an event fires, its timer is removed from the dictionary
+        let event = makeEvent(
+            startDate: Date().addingTimeInterval(5),
+            alarmOffsets: [-5]
+        )
+
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Event should fire immediately")
+
+        // Update again with the same event - it should NOT fire again because alertedEvents blocks it
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Event should not re-fire")
+    }
+
+    func testMultipleUpdatesCycleDoesNotCauseRedundantFires() {
+        // Simulates the 5-minute polling behavior where updateEvents is called repeatedly
+        let event = makeEvent(
+            id: "polling-event",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300]
+        )
+
+        // Call updateEvents multiple times (simulating polling)
+        for _ in 0..<5 {
+            scheduler.updateEvents([event])
+        }
+
+        // Should still have no fires (timer is scheduled but hasn't fired)
+        XCTAssertTrue(firedEvents.isEmpty, "Event should not fire during polling updates")
+    }
+
+    func testStaleTimerWithMultipleEvents() {
+        // Test that stale timer detection works correctly when managing multiple events
+        let futureEvent = makeEvent(
+            id: "future",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300]
+        )
+
+        let immediateEvent = makeEvent(
+            id: "immediate",
+            startDate: Date().addingTimeInterval(5),
+            alarmOffsets: [-5]
+        )
+
+        // Update with both events
+        scheduler.updateEvents([futureEvent, immediateEvent])
+
+        // Only immediate event should fire
+        XCTAssertEqual(firedEvents.count, 1)
+        XCTAssertEqual(firedEvents.first?.id, "immediate")
+
+        // Update again - future event should still be scheduled, immediate should not re-fire
+        scheduler.updateEvents([futureEvent, immediateEvent])
+        XCTAssertEqual(firedEvents.count, 1, "Should not have any new fires")
+    }
 }

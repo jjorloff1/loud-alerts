@@ -2,6 +2,7 @@ import Foundation
 
 class AlertScheduler: ObservableObject {
     private var timers: [String: Timer] = [:] // eventID -> timer
+    private var timerFireDates: [String: Date] = [:] // eventID -> fire date, for staleness detection
     private var alertedEvents: [String: Date] = [:] // eventID -> startDate, for pruning
 
     var onAlertFired: ((CalendarEvent) -> Void)?
@@ -15,6 +16,7 @@ class AlertScheduler: ObservableObject {
         for (id, timer) in timers where !currentIds.contains(id) {
             timer.invalidate()
             timers.removeValue(forKey: id)
+            timerFireDates.removeValue(forKey: id)
         }
 
         // Prune alerted events whose start date is more than 2 hours ago
@@ -32,15 +34,28 @@ class AlertScheduler: ObservableObject {
     func cancelAll() {
         timers.values.forEach { $0.invalidate() }
         timers.removeAll()
+        timerFireDates.removeAll()
         alertedEvents.removeAll()
     }
 
     private func scheduleIfNeeded(_ event: CalendarEvent) {
-        // Don't reschedule if already has an active timer
-        if timers[event.id] != nil { return }
-
         // Don't re-alert events we've already shown
         if alertedEvents[event.id] != nil { return }
+
+        // Check if existing timer is stale (fire date passed but event wasn't alerted)
+        let now = Date()
+        if let existingTimer = timers[event.id],
+           let fireDate = timerFireDates[event.id] {
+            if fireDate > now {
+                // Timer is still valid and hasn't fired yet
+                return
+            } else {
+                // Timer fire date has passed but event wasn't alerted - reschedule
+                existingTimer.invalidate()
+                timers.removeValue(forKey: event.id)
+                timerFireDates.removeValue(forKey: event.id)
+            }
+        }
 
         // Skip past events (started more than 2 minutes ago)
         if event.startDate.timeIntervalSinceNow < -120 { return }
@@ -58,7 +73,6 @@ class AlertScheduler: ObservableObject {
         let fireDates = offsets.map { event.startDate.addingTimeInterval($0) }
 
         // Find the next fire date that's in the future (or within the last 30 seconds)
-        let now = Date()
         let validFireDates = fireDates.filter { $0.timeIntervalSince(now) > -30 }
 
         guard let nextFireDate = validFireDates.min() else {
@@ -79,12 +93,14 @@ class AlertScheduler: ObservableObject {
             }
             RunLoop.main.add(timer, forMode: .common)
             timers[event.id] = timer
+            timerFireDates[event.id] = nextFireDate
         }
     }
 
     private func fireAlert(for event: CalendarEvent) {
         alertedEvents[event.id] = event.startDate
         timers.removeValue(forKey: event.id)
+        timerFireDates.removeValue(forKey: event.id)
         onAlertFired?(event)
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct MenuBarView: View {
     @EnvironmentObject var calendarService: CalendarService
@@ -6,6 +7,10 @@ struct MenuBarView: View {
     @EnvironmentObject var overlayManager: OverlayWindowManager
     @EnvironmentObject var settingsManager: SettingsManager
     @Environment(\.openSettings) private var openSettings
+
+    // Timer to force view refresh every minute so relative times update
+    @State private var currentTime = Date()
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -94,6 +99,9 @@ struct MenuBarView: View {
             .padding(.vertical, 4)
         }
         .frame(width: 300)
+        .onReceive(timer) { _ in
+            currentTime = Date()
+        }
     }
 
     // MARK: - Subviews
@@ -131,7 +139,7 @@ struct MenuBarView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(upcomingEvents.prefix(10)) { event in
-                    EventRow(event: event)
+                    EventRow(event: event, currentTime: currentTime)
                 }
             }
             .padding(.vertical, 4)
@@ -167,6 +175,7 @@ struct EventRow: View {
     }()
 
     let event: CalendarEvent
+    let currentTime: Date
 
     var body: some View {
         HStack(spacing: 8) {
@@ -239,6 +248,6 @@ struct EventRow: View {
     }
 
     private var relativeTime: String {
-        EventFormatting.relativeTime(from: event.startDate)
+        EventFormatting.relativeTime(from: event.startDate, now: currentTime)
     }
 }

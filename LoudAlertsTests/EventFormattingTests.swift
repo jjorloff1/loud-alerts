@@ -86,4 +86,48 @@ final class EventFormattingTests: XCTestCase {
     func testRelativeTime1Minute() {
         XCTAssertEqual(relativeTime(secondsFromNow: 60), "in 1m")
     }
+
+    // MARK: - Custom "now" parameter tests
+
+    func testRelativeTimeWithCustomNowParameter() {
+        // Create a fixed "yesterday" time and an event that's today
+        let yesterday = Date().addingTimeInterval(-86400) // 24 hours ago
+        let today = Date()
+
+        // Event is "today" from the perspective of "yesterday"
+        let result = EventFormatting.relativeTime(from: today, now: yesterday)
+
+        // Should show "in 24h" since event is 24 hours in the future from yesterday
+        XCTAssertEqual(result, "in 24h")
+    }
+
+    func testRelativeTimeWithDifferentNowValues() {
+        // Use a fixed base time to avoid timing issues between Date() calls
+        let baseNow = Date()
+        let eventDate = baseNow.addingTimeInterval(7200) // 2 hours from base
+
+        // Calculate from base now - should show "in 2h"
+        let resultFromNow = EventFormatting.relativeTime(from: eventDate, now: baseNow)
+        XCTAssertEqual(resultFromNow, "in 2h")
+
+        // Calculate from 1 hour in the future - should show "in 1h"
+        let futureNow = baseNow.addingTimeInterval(3600)
+        let resultFromFuture = EventFormatting.relativeTime(from: eventDate, now: futureNow)
+        XCTAssertEqual(resultFromFuture, "in 1h")
+    }
+
+    func testRelativeTimeStaleViewBehavior() {
+        // Simulates the bug: view was rendered yesterday but is showing times as if it's still yesterday
+        let baseNow = Date()
+        let yesterdayNow = baseNow.addingTimeInterval(-18 * 3600) // 18 hours ago
+        let eventTime = baseNow // Event is at "current" time
+
+        // If we calculate relative time using yesterday's "now", it shows as future
+        let staleResult = EventFormatting.relativeTime(from: eventTime, now: yesterdayNow)
+        XCTAssertEqual(staleResult, "in 18h")
+
+        // But with current "now", it should show as "now" (within 1 minute)
+        let freshResult = EventFormatting.relativeTime(from: eventTime, now: baseNow)
+        XCTAssertEqual(freshResult, "now")
+    }
 }
