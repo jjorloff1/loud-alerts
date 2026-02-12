@@ -182,6 +182,32 @@ LoudAlertsTests/
   MeetingLinkModelTests.swift
 ```
 
+## Troubleshooting
+
+### Log File
+
+Loud Alerts writes a persistent log file to:
+
+```
+~/Library/Logs/LoudAlerts/LoudAlerts.log
+```
+
+Open it in Terminal:
+
+```bash
+open ~/Library/Logs/LoudAlerts/LoudAlerts.log
+```
+
+Or tail it live:
+
+```bash
+tail -f ~/Library/Logs/LoudAlerts/LoudAlerts.log
+```
+
+The log records event fetches, alert scheduling decisions, timer fires, missed alerts, and suppressed alerts. The file rotates at 5 MB (old log kept as `LoudAlerts.log.old`).
+
+Logs are also sent to the unified system log (viewable in Console.app, subsystem `com.loudalerts`).
+
 ## Future Enhancements
 
 - Overlapping alert handling (queue/stack)

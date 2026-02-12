@@ -1,6 +1,8 @@
 import AppKit
 import SwiftUI
 
+private let logger = AppLogger(category: "AppDelegate")
+
 class AppDelegate: NSObject, NSApplicationDelegate {
     let calendarService = CalendarService()
     let alertScheduler = AlertScheduler()
@@ -42,12 +44,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showAlert(for event: CalendarEvent) {
-        guard settingsManager.alertsEnabled else { return }
-
-        if settingsManager.skipAllDayEvents && event.isAllDay {
+        guard settingsManager.alertsEnabled else {
+            logger.warning("Alert suppressed for '\(event.title)' — alerts disabled in settings.")
             return
         }
 
+        if settingsManager.skipAllDayEvents && event.isAllDay {
+            logger.info("Alert suppressed for '\(event.title)' — all-day event skipped.")
+            return
+        }
+
+        logger.info("Showing overlay alert for '\(event.title)'.")
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
 

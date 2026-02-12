@@ -1,6 +1,8 @@
 import EventKit
 import Foundation
 
+private let logger = AppLogger(category: "CalendarService")
+
 class CalendarService: ObservableObject {
     private let store = EKEventStore()
     private var pollTimer: Timer?
@@ -52,6 +54,8 @@ class CalendarService: ObservableObject {
             .filter { !disabled.contains($0.calendarID) }
             .filter { $0.endDate > now } // drop events that have ended
             .sorted { $0.startDate < $1.startDate }
+
+        logger.info("Fetched \(calendarEvents.count) events (\(ekEvents.count) total, \(ekEvents.count - calendarEvents.count) filtered).")
 
         DispatchQueue.main.async { [weak self] in
             self?.events = calendarEvents

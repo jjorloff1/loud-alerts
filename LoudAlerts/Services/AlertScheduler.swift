@@ -1,5 +1,7 @@
 import Foundation
 
+private let logger = AppLogger(category: "AlertScheduler")
+
 class AlertScheduler: ObservableObject {
     private var timers: [String: Timer] = [:] // eventID -> timer
     private var timerFireDates: [String: Date] = [:] // eventID -> fire date, for staleness detection
@@ -10,10 +12,14 @@ class AlertScheduler: ObservableObject {
     /// Returns default reminder minutes from settings (-1 = None)
     var defaultReminderMinutes: () -> Int = { -1 }
 
+    /// Grace period for catching missed fire dates — matches poll interval plus buffer
+    private let missedAlertGracePeriod: TimeInterval = 360 // 6 minutes (poll=5min + 1min buffer)
+
     func updateEvents(_ events: [CalendarEvent]) {
         // Cancel timers for events that no longer exist
         let currentIds = Set(events.map { $0.id })
         for (id, timer) in timers where !currentIds.contains(id) {
+            logger.debug("Cancelling timer for removed event: \(id)")
             timer.invalidate()
             timers.removeValue(forKey: id)
             timerFireDates.removeValue(forKey: id)
@@ -51,14 +57,19 @@ class AlertScheduler: ObservableObject {
                 return
             } else {
                 // Timer fire date has passed but event wasn't alerted - reschedule
+                logger.warning("Stale timer detected for '\(event.title)' (fire date \(fireDate) passed). Rescheduling.")
                 existingTimer.invalidate()
                 timers.removeValue(forKey: event.id)
                 timerFireDates.removeValue(forKey: event.id)
             }
         }
 
-        // Skip past events (started more than 2 minutes ago)
-        if event.startDate.timeIntervalSinceNow < -120 { return }
+        // Skip past events (started more than grace period ago)
+        let timeSinceStart = event.startDate.timeIntervalSince(now)
+        if timeSinceStart < -missedAlertGracePeriod {
+            logger.debug("Skipping '\(event.title)' — started \(Int(-timeSinceStart))s ago (beyond grace period).")
+            return
+        }
 
         // Determine alarm offsets
         let offsets: [TimeInterval]
@@ -72,23 +83,25 @@ class AlertScheduler: ObservableObject {
         }
         let fireDates = offsets.map { event.startDate.addingTimeInterval($0) }
 
-        // Find the next fire date that's in the future (or within the last 30 seconds)
-        let validFireDates = fireDates.filter { $0.timeIntervalSince(now) > -30 }
+        // Find the next fire date that's in the future or was recently missed (within grace period)
+        let validFireDates = fireDates.filter { $0.timeIntervalSince(now) > -missedAlertGracePeriod }
 
         guard let nextFireDate = validFireDates.min() else {
-            // All fire dates are past — fire immediately if event hasn't started yet
-            if event.startDate > now {
-                fireAlert(for: event)
-            }
+            // All fire dates are beyond the grace period — truly missed
+            logger.warning("All fire dates for '\(event.title)' are beyond grace period. Alert missed.")
             return
         }
 
         if nextFireDate <= now {
-            // Fire immediately
+            // Fire date is in the past but within grace period — fire immediately
+            let missedBy = Int(now.timeIntervalSince(nextFireDate))
+            logger.info("Firing late alert for '\(event.title)' (missed by \(missedBy)s).")
             fireAlert(for: event)
         } else {
-            // Schedule timer
+            // Schedule timer for future fire date
+            logger.info("Scheduling alert for '\(event.title)' at \(nextFireDate).")
             let timer = Timer(fire: nextFireDate, interval: 0, repeats: false) { [weak self] _ in
+                logger.info("Timer fired for '\(event.title)'.")
                 self?.fireAlert(for: event)
             }
             RunLoop.main.add(timer, forMode: .common)
@@ -98,6 +111,7 @@ class AlertScheduler: ObservableObject {
     }
 
     private func fireAlert(for event: CalendarEvent) {
+        logger.info("Alert firing for '\(event.title)' (start: \(event.startDate)).")
         alertedEvents[event.id] = event.startDate
         timers.removeValue(forKey: event.id)
         timerFireDates.removeValue(forKey: event.id)

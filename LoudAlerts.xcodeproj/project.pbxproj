@@ -29,6 +29,8 @@
 		AA000023 /* EventFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000025; };
 		AA000024 /* MeetingLinkModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000026; };
 		AA000025 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000028; };
+		AA000036 /* FileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000029; };
+		AA000037 /* FileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000029; };
 		AA000030 /* MeetingLinkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000007; };
 		AA000031 /* MeetingLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000004; };
 		AA000032 /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000003; };
@@ -73,6 +75,7 @@
 		AB000026 /* MeetingLinkModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingLinkModelTests.swift; sourceTree = "<group>"; };
 		AB000027 /* LoudAlertsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoudAlertsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB000028 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
+		AB000029 /* FileLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogger.swift; sourceTree = "<group>"; };
 		AC000001 /* LoudAlerts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoudAlerts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -202,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				AB000028 /* EventFormatting.swift */,
+				AB000029 /* FileLogger.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -311,6 +315,7 @@
 				AA000014 /* OverlayWindow.swift in Sources */,
 				AA000015 /* OverlayWindowManager.swift in Sources */,
 				AA000025 /* EventFormatting.swift in Sources */,
+				AA000036 /* FileLogger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +329,7 @@
 				AA000033 /* AlertScheduler.swift in Sources */,
 				AA000034 /* SettingsManager.swift in Sources */,
 				AA000035 /* EventFormatting.swift in Sources */,
+				AA000037 /* FileLogger.swift in Sources */,
 				AA000019 /* MeetingLinkDetectorTests.swift in Sources */,
 				AA000020 /* AlertSchedulerTests.swift in Sources */,
 				AA000021 /* CalendarEventTests.swift in Sources */,

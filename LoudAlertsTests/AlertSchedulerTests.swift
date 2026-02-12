@@ -166,12 +166,13 @@ final class AlertSchedulerTests: XCTestCase {
     }
 
     func testMultipleAlarmsUsesEarliestFuture() {
-        // Event starts in 10min with alarms at -15m (past), -5m (future), -1m (future).
+        // Event starts in 10min with alarms at -20m (well past, >6min grace), -5m (future), -1m (future).
+        // The -20m alarm fire date is 10min ago (outside grace period), so only future alarms considered.
         // Should schedule for the earliest future alarm, not fire immediately.
         let startDate = Date().addingTimeInterval(600)
         let event = makeEvent(
             startDate: startDate,
-            alarmOffsets: [-900, -300, -60]
+            alarmOffsets: [-1200, -300, -60]
         )
         scheduler.updateEvents([event])
         XCTAssertTrue(firedEvents.isEmpty)
@@ -281,6 +282,68 @@ final class AlertSchedulerTests: XCTestCase {
 
         // Should still have no fires (timer is scheduled but hasn't fired)
         XCTAssertTrue(firedEvents.isEmpty, "Event should not fire during polling updates")
+    }
+
+    // MARK: - Missed Alert Grace Period (bug fix)
+
+    func testAtStartAlertMissedByOneMinuteStillFires() {
+        // BUG SCENARIO: "Wind Down" at 3:15 PM with "at start" alarm (offset = 0).
+        // Poll runs at 3:16 PM (1 minute late). Old code dropped this silently
+        // because fire date was >30s past and event had already started.
+        // New code should fire within the 6-minute grace period.
+        let event = makeEvent(
+            id: "wind-down",
+            title: "Wind Down",
+            startDate: Date().addingTimeInterval(-60), // started 1 min ago
+            alarmOffsets: [0] // "at start"
+        )
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Should fire for recently-started event with 'at start' alarm")
+        XCTAssertEqual(firedEvents.first?.id, "wind-down")
+    }
+
+    func testAtStartAlertMissedByFiveMinutesStillFires() {
+        // Event started 5 min ago with "at start" alarm — within 6-min grace period
+        let event = makeEvent(
+            id: "missed-5min",
+            startDate: Date().addingTimeInterval(-300),
+            alarmOffsets: [0]
+        )
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Should fire for event missed by 5 minutes")
+    }
+
+    func testAtStartAlertMissedBySevenMinutesDoesNotFire() {
+        // Event started 7 min ago — outside the 6-min grace period
+        let event = makeEvent(
+            id: "missed-7min",
+            startDate: Date().addingTimeInterval(-420),
+            alarmOffsets: [0]
+        )
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Should NOT fire for event missed by 7 minutes (outside grace)")
+    }
+
+    func testFifteenMinBeforeAlarmMissedByThreeMinutesStillFires() {
+        // Event starts in 12min, alarm at -15min = fire date was 3 min ago.
+        // Within 6-min grace period, should fire.
+        let event = makeEvent(
+            startDate: Date().addingTimeInterval(720),
+            alarmOffsets: [-900] // -15min
+        )
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "15min-before alarm missed by 3min should still fire")
+    }
+
+    func testFifteenMinBeforeAlarmMissedByTenMinutesDoesNotFire() {
+        // Event starts in 5min, alarm at -15min = fire date was 10 min ago.
+        // Outside 6-min grace period.
+        let event = makeEvent(
+            startDate: Date().addingTimeInterval(300),
+            alarmOffsets: [-900]
+        )
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "15min-before alarm missed by 10min should NOT fire")
     }
 
     func testStaleTimerWithMultipleEvents() {
