@@ -9,6 +9,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let overlayManager = OverlayWindowManager()
     let settingsManager = SettingsManager()
     private var activityToken: NSObjectProtocol?
+    private var wakeObserver: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Prevent App Nap — this app has time-sensitive timer work
@@ -17,6 +18,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             reason: "Loud Alerts needs precise timer firing for calendar alerts"
         )
         logger.info("App Nap prevention active.")
+
+        // Immediately poll on wake from sleep — timers don't fire during sleep
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            logger.info("System wake detected — polling immediately for missed alerts.")
+            self?.calendarService.fetchEvents()
+        }
 
         // Configure alert scheduler callbacks
         alertScheduler.onAlertFired = { [weak self] event in
@@ -47,6 +58,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        if let observer = wakeObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(observer)
+        }
         overlayManager.dismissAll()
         alertScheduler.cancelAll()
     }

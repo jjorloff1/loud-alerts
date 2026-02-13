@@ -43,7 +43,9 @@ final class FileLogger {
             rotate()
         }
 
-        log("--- LoudAlerts started ---", level: "INFO", category: "App")
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "?"
+        log("--- LoudAlerts v\(version) (\(build)) started ---", level: "INFO", category: "App")
     }
 
     deinit {

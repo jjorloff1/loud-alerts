@@ -102,6 +102,20 @@ final class CalendarEventTests: XCTestCase {
         XCTAssertEqual(event.calendarName, "Test Calendar")
     }
 
+    func testTestEventStartsFifteenMinutesFromNow() {
+        let event = CalendarEvent.testEvent()
+        let secondsUntilStart = event.startDate.timeIntervalSinceNow
+        // Should be ~900s (15 min), allow 5s tolerance for test execution time
+        XCTAssertGreaterThan(secondsUntilStart, 895)
+        XCTAssertLessThan(secondsUntilStart, 905)
+    }
+
+    func testTestEventDurationIsOneHour() {
+        let event = CalendarEvent.testEvent()
+        let duration = event.endDate.timeIntervalSince(event.startDate)
+        XCTAssertEqual(duration, 3600, accuracy: 1)
+    }
+
     func testTestEventHasMeetingLink() {
         let event = CalendarEvent.testEvent()
         XCTAssertNotNil(event.meetingLink)

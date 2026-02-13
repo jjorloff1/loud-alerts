@@ -193,35 +193,23 @@ struct AlertOverlayView: View {
                 .buttonStyle(.plain)
             }
 
-            HStack(spacing: 12) {
-                // Snooze button
-                if showSnoozeOptions {
-                    HStack(spacing: 8) {
-                        ForEach([1, 5], id: \.self) { minutes in
-                            Button(action: { onSnooze(minutes) }) {
-                                Text("\(minutes)m")
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .frame(width: 60, height: 44)
-                                    .background(Color.white.opacity(0.15))
-                                    .cornerRadius(10)
-                            }
-                            .buttonStyle(.plain)
-                        }
+            if showSnoozeOptions {
+                // Snooze options grid
+                snoozeOptionsGrid
 
-                        if minutesUntilStart > 1 {
-                            Button(action: { onSnooze(minutesUntilStart) }) {
-                                Text("Start")
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .frame(width: 60, height: 44)
-                                    .background(Color.white.opacity(0.15))
-                                    .cornerRadius(10)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                } else {
+                // Dismiss button (full width below grid)
+                Button(action: onDismiss) {
+                    Text("Dismiss")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(10)
+                }
+                .buttonStyle(.plain)
+            } else {
+                HStack(spacing: 12) {
                     Button(action: { withAnimation { showSnoozeOptions = true } }) {
                         HStack(spacing: 6) {
                             Image(systemName: "clock.arrow.circlepath")
@@ -235,21 +223,59 @@ struct AlertOverlayView: View {
                         .cornerRadius(10)
                     }
                     .buttonStyle(.plain)
-                }
 
-                // Dismiss button
-                Button(action: onDismiss) {
-                    Text("Dismiss")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
-                        .background(Color.white.opacity(0.15))
-                        .cornerRadius(10)
+                    // Dismiss button
+                    Button(action: onDismiss) {
+                        Text("Dismiss")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 44)
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(10)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
+    }
+
+    private var snoozeOptionsGrid: some View {
+        let options = availableSnoozeOptions
+        let firstRow = Array(options.prefix(2))
+        let secondRow = options.count > 2 ? Array(options.suffix(from: 2)) : []
+
+        return VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                ForEach(Array(firstRow.enumerated()), id: \.offset) { _, option in
+                    snoozeOptionButton(label: option.label, minutes: option.minutes)
+                }
+            }
+            if !secondRow.isEmpty {
+                HStack(spacing: 8) {
+                    ForEach(Array(secondRow.enumerated()), id: \.offset) { _, option in
+                        snoozeOptionButton(label: option.label, minutes: option.minutes)
+                    }
+                }
+            }
+        }
+    }
+
+    private var availableSnoozeOptions: [EventFormatting.SnoozeOption] {
+        EventFormatting.snoozeOptions(minutesUntilStart: minutesUntilStart)
+    }
+
+    private func snoozeOptionButton(label: String, minutes: Int) -> some View {
+        Button(action: { onSnooze(minutes) }) {
+            Text(label)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+                .background(Color.white.opacity(0.15))
+                .cornerRadius(10)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Helpers

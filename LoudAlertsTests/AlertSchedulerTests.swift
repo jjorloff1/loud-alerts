@@ -378,6 +378,40 @@ final class AlertSchedulerTests: XCTestCase {
         XCTAssertTrue(firedEvents.isEmpty, "15min-before alarm missed by 10min should NOT fire")
     }
 
+    func testWakeFromSleepScenario() {
+        // Reproduces the real bug: event at 9:00 AM, alarm "at start" (offset 0).
+        // Timer scheduled. Computer sleeps, wakes at 9:04. Poll triggers updateEvents.
+        // The stale timer should be detected and the alert should fire immediately.
+
+        // Step 1: Schedule an event with alarm that fires in ~5 min
+        let event = makeEvent(
+            id: "impl-block",
+            title: "Implementation Block",
+            startDate: Date().addingTimeInterval(300), // starts in 5 min
+            alarmOffsets: [0] // alarm at start = fire date is in 5 min
+        )
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Timer should be scheduled, not fired yet")
+
+        // Step 2: Simulate "sleep then wake" — force the timer's fire date to be in the past
+        // by cancelling and re-adding with a past fire date.
+        // We can't manipulate time, but we can create a new event whose alarm fire date
+        // is in the recent past (simulating that the timer should have fired during sleep).
+        scheduler.cancelAll()
+        firedEvents.removeAll()
+
+        let wakeEvent = makeEvent(
+            id: "impl-block-wake",
+            title: "Implementation Block",
+            startDate: Date().addingTimeInterval(-240), // started 4 min ago
+            alarmOffsets: [0] // fire date was 4 min ago — within grace period
+        )
+        // This simulates the poll running on wake
+        scheduler.updateEvents([wakeEvent])
+        XCTAssertEqual(firedEvents.count, 1, "Should fire immediately on wake for recently-missed alert")
+        XCTAssertEqual(firedEvents.first?.title, "Implementation Block")
+    }
+
     func testStaleTimerWithMultipleEvents() {
         // Test that stale timer detection works correctly when managing multiple events
         let futureEvent = makeEvent(

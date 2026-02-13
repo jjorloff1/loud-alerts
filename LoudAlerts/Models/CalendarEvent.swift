@@ -58,8 +58,8 @@ struct CalendarEvent: Identifiable, Equatable {
         return CalendarEvent(
             id: "test-\(UUID().uuidString)",
             title: "Test Meeting — Loud Alerts Demo",
-            startDate: Date().addingTimeInterval(60),
-            endDate: Date().addingTimeInterval(3660),
+            startDate: Date().addingTimeInterval(900),
+            endDate: Date().addingTimeInterval(4500),
             isAllDay: false,
             location: location,
             notes: notes,
