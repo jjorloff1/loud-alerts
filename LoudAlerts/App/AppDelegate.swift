@@ -8,8 +8,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let alertScheduler = AlertScheduler()
     let overlayManager = OverlayWindowManager()
     let settingsManager = SettingsManager()
+    private var activityToken: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Prevent App Nap — this app has time-sensitive timer work
+        activityToken = ProcessInfo.processInfo.beginActivity(
+            options: .userInitiatedAllowingIdleSystemSleep,
+            reason: "Loud Alerts needs precise timer firing for calendar alerts"
+        )
+        logger.info("App Nap prevention active.")
+
         // Configure alert scheduler callbacks
         alertScheduler.onAlertFired = { [weak self] event in
             self?.showAlert(for: event)

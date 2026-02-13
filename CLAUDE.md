@@ -26,6 +26,12 @@ Or open `LoudAlerts.xcodeproj` in Xcode and press Cmd+R.
 - Keyboard monitor (`NSEvent.addLocalMonitorForEvents`) for Escape/Enter dismiss
 - Timer-based polling every 5 minutes + `EKEventStoreChanged` notification for real-time updates
 
+## Testing
+
+- **Always add tests** for new features and bug fixes — no code change ships without corresponding test coverage
+- Tests live in `LoudAlertsTests/` and compile source files directly (no `@testable import`)
+- Run tests: `xcodebuild test -project LoudAlerts.xcodeproj -scheme LoudAlerts -destination 'platform=macOS'`
+
 ## File Layout
 
 All source under `LoudAlerts/` in App/, Models/, Services/, Views/, Windows/, Utilities/ subdirectories. Xcode project at `LoudAlerts.xcodeproj/`.

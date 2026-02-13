@@ -211,6 +211,38 @@ final class AlertSchedulerTests: XCTestCase {
         // Just verifying no crash
     }
 
+    // MARK: - Timer Tolerance
+
+    func testScheduledTimerHasZeroTolerance() {
+        let event = makeEvent(
+            id: "tolerance-test",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300]
+        )
+        scheduler.updateEvents([event])
+
+        let tolerance = scheduler.scheduledTimerTolerance(forEventID: "tolerance-test")
+        XCTAssertNotNil(tolerance, "Timer should be scheduled for future event")
+        XCTAssertEqual(tolerance, 0, "Timer tolerance should be 0 to prevent kernel coalescing")
+    }
+
+    func testMultipleScheduledTimersAllHaveZeroTolerance() {
+        let event1 = makeEvent(
+            id: "tol-1",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300]
+        )
+        let event2 = makeEvent(
+            id: "tol-2",
+            startDate: Date().addingTimeInterval(900),
+            alarmOffsets: [-300]
+        )
+        scheduler.updateEvents([event1, event2])
+
+        XCTAssertEqual(scheduler.scheduledTimerTolerance(forEventID: "tol-1"), 0)
+        XCTAssertEqual(scheduler.scheduledTimerTolerance(forEventID: "tol-2"), 0)
+    }
+
     // MARK: - Stale Timer Detection
 
     func testStaleTimerIsRescheduled() {

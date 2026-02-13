@@ -104,10 +104,16 @@ class AlertScheduler: ObservableObject {
                 logger.info("Timer fired for '\(event.title)'.")
                 self?.fireAlert(for: event)
             }
+            timer.tolerance = 0
             RunLoop.main.add(timer, forMode: .common)
             timers[event.id] = timer
             timerFireDates[event.id] = nextFireDate
         }
+    }
+
+    /// Test-only: returns the tolerance of the scheduled timer for the given event ID
+    func scheduledTimerTolerance(forEventID id: String) -> TimeInterval? {
+        timers[id]?.tolerance
     }
 
     private func fireAlert(for event: CalendarEvent) {

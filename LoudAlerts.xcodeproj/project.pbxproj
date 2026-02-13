@@ -31,6 +31,7 @@
 		AA000025 /* EventFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000028; };
 		AA000036 /* FileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000029; };
 		AA000037 /* FileLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000029; };
+		AA000038 /* AppNapPreventionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000030; };
 		AA000030 /* MeetingLinkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000007; };
 		AA000031 /* MeetingLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000004; };
 		AA000032 /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000003; };
@@ -76,6 +77,7 @@
 		AB000027 /* LoudAlertsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoudAlertsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB000028 /* EventFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventFormatting.swift; sourceTree = "<group>"; };
 		AB000029 /* FileLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogger.swift; sourceTree = "<group>"; };
+		AB000030 /* AppNapPreventionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNapPreventionTests.swift; sourceTree = "<group>"; };
 		AC000001 /* LoudAlerts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoudAlerts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -197,6 +199,7 @@
 				AB000024 /* SettingsManagerTests.swift */,
 				AB000025 /* EventFormattingTests.swift */,
 				AB000026 /* MeetingLinkModelTests.swift */,
+				AB000030 /* AppNapPreventionTests.swift */,
 			);
 			path = LoudAlertsTests;
 			sourceTree = "<group>";
@@ -336,6 +339,7 @@
 				AA000022 /* SettingsManagerTests.swift in Sources */,
 				AA000023 /* EventFormattingTests.swift in Sources */,
 				AA000024 /* MeetingLinkModelTests.swift in Sources */,
+				AA000038 /* AppNapPreventionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,7 +473,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -493,7 +497,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -508,7 +512,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -523,7 +527,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.loudalerts.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;

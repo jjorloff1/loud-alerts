@@ -215,3 +215,5 @@ Logs are also sent to the unified system log (viewable in Console.app, subsystem
 - Microsoft Graph API as alternative data source
 - Custom alert sounds
 - Per-calendar reminder offset overrides
+- Watchdog timer for imminent events — 15-second fast-tick timer when alerts are within 6 minutes, for faster stale-timer recovery
+- Wall-clock-aligned polling — anchor polls to :02:30/:07:30 offsets to avoid contention with typical meeting start times
