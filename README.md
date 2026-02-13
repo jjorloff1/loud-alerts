@@ -182,6 +182,32 @@ LoudAlertsTests/
   MeetingLinkModelTests.swift
 ```
 
+## Code Signing & Calendar Permissions
+
+macOS ties calendar permission grants to the app's **code signing identity**. Without consistent signing, each rebuild looks like a new app and macOS re-prompts for calendar access.
+
+### Setting up signing (do this once)
+
+1. Open **Xcode > Settings > Accounts**
+2. Add your Apple ID (a free account works)
+3. Xcode creates a "Personal Team" signing certificate automatically
+4. Open `LoudAlerts.xcodeproj`, select the **LoudAlerts** target
+5. Go to **Signing & Capabilities** and select your Personal Team from the **Team** dropdown
+6. Build and run — macOS will ask for calendar access one final time, then remember it across rebuilds
+
+If you're building from the command line, you can also add `DEVELOPMENT_TEAM=YOUR_TEAM_ID` to the `xcodebuild` command:
+
+```bash
+xcodebuild -project LoudAlerts.xcodeproj -scheme LoudAlerts -configuration Debug \
+  DEVELOPMENT_TEAM=XXXXXXXXXX build
+```
+
+Find your Team ID with: `security find-identity -v -p codesigning` or in Xcode under the Signing & Capabilities tab.
+
+### Why this happens
+
+Without a `DEVELOPMENT_TEAM`, the project uses ad-hoc signing (`CODE_SIGN_STYLE = Automatic` with no team). Each build gets a different signing identity, so macOS treats it as an unrelated app and the TCC (Transparency, Consent, and Control) database has no matching record — prompting again.
+
 ## Troubleshooting
 
 ### Log File
