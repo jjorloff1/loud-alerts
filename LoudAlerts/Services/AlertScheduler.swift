@@ -37,6 +37,19 @@ class AlertScheduler: ObservableObject {
 
     // Snooze is now handled by OverlayWindowManager directly
 
+    /// Invalidate all timers so they get recreated on next poll.
+    /// Preserves alertedEvents so we don't re-alert events already shown.
+    /// Call this on system wake — sleep silently breaks RunLoop timer scheduling.
+    func invalidateAllTimers() {
+        let count = timers.count
+        timers.values.forEach { $0.invalidate() }
+        timers.removeAll()
+        timerFireDates.removeAll()
+        if count > 0 {
+            logger.info("Invalidated \(count) timers for recreation after wake.")
+        }
+    }
+
     func cancelAll() {
         timers.values.forEach { $0.invalidate() }
         timers.removeAll()
@@ -99,7 +112,8 @@ class AlertScheduler: ObservableObject {
             fireAlert(for: event)
         } else {
             // Schedule timer for future fire date
-            logger.info("Scheduling alert for '\(event.title)' at \(nextFireDate).")
+            let secondsUntilFire = nextFireDate.timeIntervalSince(now)
+            logger.info("Scheduling alert for '\(event.title)' at \(nextFireDate) (\(Int(secondsUntilFire))s from now).")
             let timer = Timer(fire: nextFireDate, interval: 0, repeats: false) { [weak self] _ in
                 logger.info("Timer fired for '\(event.title)'.")
                 self?.fireAlert(for: event)

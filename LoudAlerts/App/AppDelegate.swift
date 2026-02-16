@@ -19,13 +19,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
         logger.info("App Nap prevention active.")
 
-        // Immediately poll on wake from sleep — timers don't fire during sleep
+        // On wake from sleep: invalidate all timers (sleep breaks RunLoop timer
+        // scheduling silently — Timer.isValid stays true but callbacks never fire),
+        // then poll to recreate them with fresh timers.
         wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didWakeNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            logger.info("System wake detected — polling immediately for missed alerts.")
+            logger.info("System wake detected — invalidating timers and polling for missed alerts.")
+            self?.alertScheduler.invalidateAllTimers()
             self?.calendarService.fetchEvents()
         }
 

@@ -412,6 +412,79 @@ final class AlertSchedulerTests: XCTestCase {
         XCTAssertEqual(firedEvents.first?.title, "Implementation Block")
     }
 
+    // MARK: - invalidateAllTimers (wake fix)
+
+    func testInvalidateAllTimersAllowsRecreation() {
+        // Simulates the wake fix: timers are invalidated, then updateEvents
+        // recreates them with fresh RunLoop scheduling.
+        let event = makeEvent(
+            id: "wake-recreate",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300]
+        )
+
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Timer should be scheduled, not fired")
+        XCTAssertNotNil(scheduler.scheduledTimerTolerance(forEventID: "wake-recreate"),
+                        "Timer should exist before invalidation")
+
+        // Simulate wake: invalidate all timers
+        scheduler.invalidateAllTimers()
+        XCTAssertNil(scheduler.scheduledTimerTolerance(forEventID: "wake-recreate"),
+                     "Timer should be cleared after invalidation")
+
+        // Simulate poll after wake: updateEvents recreates timers
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty, "Event should not fire — alarm is still in the future")
+        XCTAssertNotNil(scheduler.scheduledTimerTolerance(forEventID: "wake-recreate"),
+                        "Timer should be recreated after updateEvents")
+    }
+
+    func testInvalidateAllTimersPreservesAlertedEvents() {
+        // An event that already fired should NOT re-fire after invalidateAllTimers
+        let event = makeEvent(
+            id: "already-alerted",
+            startDate: Date().addingTimeInterval(5),
+            alarmOffsets: [-5]
+        )
+
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Event should fire immediately")
+
+        // Simulate wake
+        scheduler.invalidateAllTimers()
+
+        // Poll after wake — should not re-alert
+        scheduler.updateEvents([event])
+        XCTAssertEqual(firedEvents.count, 1, "Already-alerted event should NOT fire again after wake")
+    }
+
+    func testInvalidateAllTimersThenWakeMissedAlert() {
+        // Full wake scenario: timer was scheduled, sleep happened, fire date passed,
+        // wake invalidates timers, poll detects missed alert and fires it.
+        let event = makeEvent(
+            id: "sleep-missed",
+            startDate: Date().addingTimeInterval(600),
+            alarmOffsets: [-300] // fires in 5 min
+        )
+
+        scheduler.updateEvents([event])
+        XCTAssertTrue(firedEvents.isEmpty)
+
+        // Simulate wake: invalidate timers
+        scheduler.invalidateAllTimers()
+
+        // Now simulate that time has passed and the alarm fire date is now 2 min ago.
+        // We do this by creating a new event version where the fire date is in the recent past.
+        let wakeEvent = makeEvent(
+            id: "sleep-missed",
+            startDate: Date().addingTimeInterval(120), // starts in 2 min
+            alarmOffsets: [-240] // fire date was 2 min ago
+        )
+        scheduler.updateEvents([wakeEvent])
+        XCTAssertEqual(firedEvents.count, 1, "Missed alert should fire immediately after wake")
+    }
+
     func testStaleTimerWithMultipleEvents() {
         // Test that stale timer detection works correctly when managing multiple events
         let futureEvent = makeEvent(
