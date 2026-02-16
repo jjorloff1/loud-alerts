@@ -55,8 +55,8 @@ class OverlayWindowManager: ObservableObject {
                     self?.dismissAll()
                     onDismiss()
                 },
-                onSnooze: { [weak self] minutes in
-                    self?.snooze(minutes: minutes)
+                onSnooze: { [weak self] delay in
+                    self?.snooze(delay: delay)
                 },
                 onJoinCall: { [weak self] link in
                     NSWorkspace.shared.open(link.url)
@@ -93,8 +93,12 @@ class OverlayWindowManager: ObservableObject {
         }
     }
 
-    func snooze(minutes: Int) {
+    func snooze(delay: EventFormatting.SnoozeDelay) {
+        guard let event = currentEvent else { return }
         dismissWindows()
+
+        let fireDate = delay.fireDate(eventStart: event.startDate)
+        let interval = max(0, fireDate.timeIntervalSinceNow)
 
         let work = DispatchWorkItem { [weak self] in
             guard let self,
@@ -111,7 +115,7 @@ class OverlayWindowManager: ObservableObject {
         }
         snoozeWork = work
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + Double(minutes * 60),
+            deadline: .now() + interval,
             execute: work
         )
     }

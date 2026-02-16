@@ -12,23 +12,46 @@ enum EventFormatting {
         return "\(hours)h \(rem)m before"
     }
 
-    struct SnoozeOption {
-        let label: String
-        let minutes: Int
+    enum SnoozeDelay {
+        case fromNow(seconds: TimeInterval)
+        case beforeStart(seconds: TimeInterval)
+
+        func fireDate(eventStart: Date) -> Date {
+            switch self {
+            case .fromNow(let s): return Date().addingTimeInterval(s)
+            case .beforeStart(let s): return eventStart.addingTimeInterval(-s)
+            }
+        }
     }
 
-    static func snoozeOptions(minutesUntilStart: Int) -> [SnoozeOption] {
-        var options: [SnoozeOption] = [SnoozeOption(label: "1m", minutes: 1)]
+    struct SnoozeOption {
+        let label: String
+        let delay: SnoozeDelay
+    }
+
+    struct SnoozeOptionGroups {
+        let standard: [SnoozeOption]
+        let relativeToStart: [SnoozeOption]
+    }
+
+    static func snoozeOptionGroups(minutesUntilStart: Int) -> SnoozeOptionGroups {
+        let standard: [SnoozeOption] = [
+            SnoozeOption(label: "1m", delay: .fromNow(seconds: 60)),
+            SnoozeOption(label: "5m", delay: .fromNow(seconds: 300)),
+        ]
+
+        var relative: [SnoozeOption] = []
         if minutesUntilStart > 5 {
-            options.append(SnoozeOption(label: "5m before", minutes: minutesUntilStart - 5))
+            relative.append(SnoozeOption(label: "5m before", delay: .beforeStart(seconds: 300)))
         }
         if minutesUntilStart > 2 {
-            options.append(SnoozeOption(label: "2m before", minutes: minutesUntilStart - 2))
+            relative.append(SnoozeOption(label: "2m before", delay: .beforeStart(seconds: 120)))
         }
         if minutesUntilStart > 1 {
-            options.append(SnoozeOption(label: "Start", minutes: minutesUntilStart))
+            relative.append(SnoozeOption(label: "Start", delay: .beforeStart(seconds: 0)))
         }
-        return options
+
+        return SnoozeOptionGroups(standard: standard, relativeToStart: relative)
     }
 
     static func relativeTime(from startDate: Date, now: Date = Date()) -> String {

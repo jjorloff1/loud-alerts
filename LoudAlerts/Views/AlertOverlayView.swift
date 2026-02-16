@@ -10,7 +10,7 @@ struct AlertOverlayView: View {
     let event: CalendarEvent
     let isPrimary: Bool
     let onDismiss: () -> Void
-    let onSnooze: (Int) -> Void
+    let onSnooze: (EventFormatting.SnoozeDelay) -> Void
     let onJoinCall: (MeetingLink) -> Void
 
     @State private var timeUntilStart: TimeInterval = 0
@@ -241,33 +241,28 @@ struct AlertOverlayView: View {
     }
 
     private var snoozeOptionsGrid: some View {
-        let options = availableSnoozeOptions
-        let firstRow = Array(options.prefix(2))
-        let secondRow = options.count > 2 ? Array(options.suffix(from: 2)) : []
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: minutesUntilStart)
 
         return VStack(spacing: 8) {
             HStack(spacing: 8) {
-                ForEach(Array(firstRow.enumerated()), id: \.offset) { _, option in
-                    snoozeOptionButton(label: option.label, minutes: option.minutes)
+                ForEach(Array(groups.standard.enumerated()), id: \.offset) { _, option in
+                    snoozeOptionButton(option: option)
                 }
             }
-            if !secondRow.isEmpty {
+
+            if !groups.relativeToStart.isEmpty {
                 HStack(spacing: 8) {
-                    ForEach(Array(secondRow.enumerated()), id: \.offset) { _, option in
-                        snoozeOptionButton(label: option.label, minutes: option.minutes)
+                    ForEach(Array(groups.relativeToStart.enumerated()), id: \.offset) { _, option in
+                        snoozeOptionButton(option: option)
                     }
                 }
             }
         }
     }
 
-    private var availableSnoozeOptions: [EventFormatting.SnoozeOption] {
-        EventFormatting.snoozeOptions(minutesUntilStart: minutesUntilStart)
-    }
-
-    private func snoozeOptionButton(label: String, minutes: Int) -> some View {
-        Button(action: { onSnooze(minutes) }) {
-            Text(label)
+    private func snoozeOptionButton(option: EventFormatting.SnoozeOption) -> some View {
+        Button(action: { onSnooze(option.delay) }) {
+            Text(option.label)
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)

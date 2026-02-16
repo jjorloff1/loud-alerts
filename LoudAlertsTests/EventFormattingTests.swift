@@ -116,70 +116,117 @@ final class EventFormattingTests: XCTestCase {
         XCTAssertEqual(resultFromFuture, "in 1h")
     }
 
-    // MARK: - snoozeOptions
+    // MARK: - SnoozeDelay.fireDate
 
-    func testSnoozeOptionsAllFourWhenFarFromStart() {
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 15)
-        XCTAssertEqual(options.count, 4)
-        XCTAssertEqual(options[0].label, "1m")
-        XCTAssertEqual(options[0].minutes, 1)
-        XCTAssertEqual(options[1].label, "5m before")
-        XCTAssertEqual(options[1].minutes, 10) // 15 - 5
-        XCTAssertEqual(options[2].label, "2m before")
-        XCTAssertEqual(options[2].minutes, 13) // 15 - 2
-        XCTAssertEqual(options[3].label, "Start")
-        XCTAssertEqual(options[3].minutes, 15)
+    func testFromNowFireDate() {
+        let eventStart = Date().addingTimeInterval(600) // irrelevant for .fromNow
+        let before = Date().addingTimeInterval(300)
+        let fireDate = EventFormatting.SnoozeDelay.fromNow(seconds: 300).fireDate(eventStart: eventStart)
+        let after = Date().addingTimeInterval(300)
+        // fireDate should be ~now+300s, bounded by before/after
+        XCTAssertGreaterThanOrEqual(fireDate, before)
+        XCTAssertLessThanOrEqual(fireDate, after)
     }
 
-    func testSnoozeOptionsThreeWhenFiveMinutesOut() {
-        // At exactly 5 min, "5m before" would be 0-minute snooze, so it's hidden
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 5)
-        XCTAssertEqual(options.count, 3)
-        XCTAssertEqual(options[0].label, "1m")
-        XCTAssertEqual(options[1].label, "2m before")
-        XCTAssertEqual(options[1].minutes, 3) // 5 - 2
-        XCTAssertEqual(options[2].label, "Start")
-        XCTAssertEqual(options[2].minutes, 5)
+    func testBeforeStartFireDateFiveMinutes() {
+        let eventStart = Date().addingTimeInterval(600) // 10 min from now
+        let fireDate = EventFormatting.SnoozeDelay.beforeStart(seconds: 300).fireDate(eventStart: eventStart)
+        // Should fire at eventStart - 300s = now + 300s
+        let expected = eventStart.addingTimeInterval(-300)
+        XCTAssertEqual(fireDate, expected)
     }
 
-    func testSnoozeOptionsTwoWhenTwoMinutesOut() {
-        // At exactly 2 min, "2m before" would be 0 min, so hidden
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 2)
-        XCTAssertEqual(options.count, 2)
-        XCTAssertEqual(options[0].label, "1m")
-        XCTAssertEqual(options[1].label, "Start")
-        XCTAssertEqual(options[1].minutes, 2)
+    func testBeforeStartFireDateAtStart() {
+        let eventStart = Date().addingTimeInterval(600)
+        let fireDate = EventFormatting.SnoozeDelay.beforeStart(seconds: 0).fireDate(eventStart: eventStart)
+        // "Start" fires exactly at eventStart
+        XCTAssertEqual(fireDate, eventStart)
     }
 
-    func testSnoozeOptionsOnlyOneMinuteWhenOneMinuteOut() {
-        // At 1 min, "Start" would be same as 1m, so hidden
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 1)
-        XCTAssertEqual(options.count, 1)
-        XCTAssertEqual(options[0].label, "1m")
+    func testBeforeStartIsIndependentOfCurrentTime() {
+        // The key fix: .beforeStart anchors to eventStart, not to Date()
+        let eventStart = Date(timeIntervalSince1970: 1_000_000)
+        let delay = EventFormatting.SnoozeDelay.beforeStart(seconds: 120)
+        let fireDate1 = delay.fireDate(eventStart: eventStart)
+        // Even if we call again later, the result is the same absolute time
+        let fireDate2 = delay.fireDate(eventStart: eventStart)
+        XCTAssertEqual(fireDate1, fireDate2)
+        XCTAssertEqual(fireDate1, eventStart.addingTimeInterval(-120))
     }
 
-    func testSnoozeOptionsOnlyOneMinuteWhenAlreadyStarted() {
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 0)
-        XCTAssertEqual(options.count, 1)
-        XCTAssertEqual(options[0].label, "1m")
-        XCTAssertEqual(options[0].minutes, 1)
+    // MARK: - snoozeOptionGroups
+
+    func testSnoozeGroupsStandardAlwaysHasTwoOptions() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 15)
+        XCTAssertEqual(groups.standard.count, 2)
+        XCTAssertEqual(groups.standard[0].label, "1m")
+        XCTAssertEqual(groups.standard[1].label, "5m")
     }
 
-    func testSnoozeOptionsFiveMinBeforeShownAtSixMinutes() {
-        // At 6 min out, "5m before" = 1 min snooze — just barely worth showing
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 6)
-        let labels = options.map(\.label)
+    func testSnoozeGroupsAllRelativeWhenFarFromStart() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 15)
+        XCTAssertEqual(groups.relativeToStart.count, 3)
+        XCTAssertEqual(groups.relativeToStart[0].label, "5m before")
+        XCTAssertEqual(groups.relativeToStart[1].label, "2m before")
+        XCTAssertEqual(groups.relativeToStart[2].label, "Start")
+    }
+
+    func testSnoozeGroupsFiveMinutesOut() {
+        // At exactly 5 min, "5m before" hidden (would fire immediately)
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 5)
+        let labels = groups.relativeToStart.map(\.label)
+        XCTAssertFalse(labels.contains("5m before"))
+        XCTAssertTrue(labels.contains("2m before"))
+        XCTAssertTrue(labels.contains("Start"))
+    }
+
+    func testSnoozeGroupsTwoMinutesOut() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 2)
+        let labels = groups.relativeToStart.map(\.label)
+        XCTAssertFalse(labels.contains("5m before"))
+        XCTAssertFalse(labels.contains("2m before"))
+        XCTAssertTrue(labels.contains("Start"))
+    }
+
+    func testSnoozeGroupsOneMinuteOutNoRelative() {
+        // At 1 min, "Start" hidden (would be <=1 min)
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 1)
+        XCTAssertTrue(groups.relativeToStart.isEmpty)
+    }
+
+    func testSnoozeGroupsAlreadyStartedNoRelative() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 0)
+        XCTAssertTrue(groups.relativeToStart.isEmpty)
+        // Standard options still available
+        XCTAssertEqual(groups.standard.count, 2)
+    }
+
+    func testSnoozeGroupsSixMinutesOutIncludesFiveBefore() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 6)
+        let labels = groups.relativeToStart.map(\.label)
         XCTAssertTrue(labels.contains("5m before"))
-        let fiveBefore = options.first { $0.label == "5m before" }!
-        XCTAssertEqual(fiveBefore.minutes, 1) // 6 - 5
     }
 
-    func testSnoozeOptionsMinutesCalculation() {
-        let options = EventFormatting.snoozeOptions(minutesUntilStart: 30)
-        XCTAssertEqual(options.count, 4)
-        XCTAssertEqual(options[1].minutes, 25) // 30 - 5
-        XCTAssertEqual(options[2].minutes, 28) // 30 - 2
-        XCTAssertEqual(options[3].minutes, 30)
+    func testSnoozeGroupsRelativeDelaysAreBeforeStart() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 15)
+        for option in groups.relativeToStart {
+            if case .beforeStart = option.delay {
+                // expected
+            } else {
+                XCTFail("Relative option '\(option.label)' should use .beforeStart delay")
+            }
+        }
+    }
+
+    func testSnoozeGroupsStandardDelaysAreFromNow() {
+        let groups = EventFormatting.snoozeOptionGroups(minutesUntilStart: 15)
+        for option in groups.standard {
+            if case .fromNow = option.delay {
+                // expected
+            } else {
+                XCTFail("Standard option '\(option.label)' should use .fromNow delay")
+            }
+        }
     }
 
     func testRelativeTimeStaleViewBehavior() {
